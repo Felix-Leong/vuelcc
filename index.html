@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <!-- <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css"
+    /> -->
+    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.css" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link href="currency-flags.css" rel="stylesheet" />
+
+    <title>Live Currency Converter</title>
+    <style>
+      /* .container {
+            width: 25rem;
+        }
+
+        .reg-item {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid black;
+            border-radius: 0.5rem;
+        }
+*/
+      .has-background-very-light-danger {
+        background-color: hsl(348, 100%, 96%) !important;
+      }
+
+      .has-background-very-light-success {
+        background-color: hsl(141, 71%, 96%) !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <section
+        class="section hero is-primary is-small is-fullheight-with-navbar"
+      >
+        <div class="hero-head">
+          <lcc-header></lcc-header>
+        </div>
+
+        <div class="hero-body">
+          <div class="container">
+            <div class="columns">
+              <div class="column">
+                <currency-item
+                  :list="myCurrencyList"
+                  :currency="leftCurrency"
+                  :value="leftValue"
+                  @valuechanged="leftValueChanged"
+                  @currencychanged="leftCurrencyChanged"
+                ></currency-item>
+              </div>
+              <div class="column">
+                <currency-item
+                  :list="myCurrencyList"
+                  :currency="rightCurrency"
+                  :value="rightValue"
+                  @valuechanged="rightValueChanged"
+                  @currencychanged="rightCurrencyChanged"
+                ></currency-item>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-foot">
+          <div class="container">
+            <nav class="level">
+                <div class="level-left">
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <nav class="tabs">
+                            <div class="container">
+                              <ul>
+                                <li><a @click="isAboutModalActive = true">About</a></li>
+                              </ul>
+                            </div>
+                          </nav>
+                    </div>
+                    <div class="level-item">
+                        <b-taglist attached>
+                            <b-tag type="is-dark">version</b-tag>
+                            <b-tag type="is-info">1.0.0</b-tag>
+                          </b-taglist>
+                    </div>
+                  </div>
+              </div>
+        </div>
+      </section>
+      <section>
+          <b-modal :active.sync="isAboutModalActive">
+              <div class="card">                 
+                  <div class="card-content">
+                      <div class="content">
+                          <h2>About</h2>
+                          <h3>Data Source</h3>
+                          <p>https://currencylayer.com/</p>
+                          <h3>Formula</h3>
+                          <p><img src="lvalue.gif"></p>
+                          <p><img src="rvalue.gif"></p>
+                          <span class="has-text-primary is-italic">*The rate is relative to the US dollar</span>
+                          <h3>Copyright</h3>
+                          <p>&#9400;Felix Leong - CPTTM Vue.js course by Gump Lee</p>
+                          <h3>Contact</h3>
+                          <p>felixleong85@gmail.com</p>
+                      </div>
+                  </div>
+              </div>
+          </b-modal>
+      </section>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="https://unpkg.com/vue"></script>
+    <!-- Full bundle -->
+    <script src="https://unpkg.com/buefy/dist/buefy.js"></script>
+    <!-- Individual components -->
+    <script src="https://unpkg.com/buefy/dist/components/table"></script>
+    <script src="https://unpkg.com/buefy/dist/components/input"></script>
+
+    <script type="text/javascript" src="currencies.js"></script>
+
+    <script type="text/x-template" id="lcc-header">
+      <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                            <p class="subtitle is-5">
+                                <span class="icon is-large">
+                                    <i class="material-icons">sync_alt</i>
+                                </span>
+                                <strong>Live</strong> Currencey Converter
+                            </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </script>
+
+    <script type="text/x-template" id="currency-item">
+      <div class="card notification is-info">
+        <div class="card-content">
+          <div class="media">
+            <div class="media-left">               
+              <figure class="image is-48x32">
+                <div :class="selectedCurrencyFlagClass" class="currency-flag currency-flag-xl"></div>
+              </figure>
+            </div>
+            <div class="media-content">
+              <p class="title is-4">{{ selectedCurrency.name }}</p>
+              <p class="subtitle is-5">
+                <b-taglist attached>
+                  <b-tag >{{ selectedCurrency.code }}</b-tag>
+                  <b-tag type="is-dark">{{ selectedCurrency.symbol_native }}</b-tag>
+                </b-taglist>
+                <!-- {{ selectedCurrency.code }} ({{ selectedCurrency.symbol_native }}) -->
+            </p>
+            </div>
+            <div class="media-right">
+                <div class="is-size-2 has-text-weight-semibold">{{ currentValue }}</div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="card-footer notification has-background-white">
+            <div class="container has-text-black">
+                <b-field horizontal custom-class="is-medium">
+                    <template slot="label">
+                        <span class="has-text-primary is-italic">{{ selectedCurrency.code }}</span>
+                    </template>
+                    <b-select v-model="selectedCurrency" @input="currentSelectedCurrencyChanged" placeholder="Medium" size="is-medium" expanded>
+                      <option v-for="item in list" :value="item">
+                        {{ item.code }} - {{ item.name }}
+                      </option>
+                    </b-select>
+                  </b-field>
+            <b-field horizontal custom-class="is-medium">
+                <template slot="label">
+                    <span class="has-text-primary is-italic">{{ selectedCurrency.symbol }}</span>
+                </template>
+                <b-numberinput v-model="currentValue" expanded @input="currentValueChanged" type="is-light" step="0.01" controls-position="compact" size="is-medium">
+                </b-numberinput>
+                <!-- <b-input placeholder="Medium"
+                    size="is-medium">
+                </b-input> -->
+            </b-field>
+          </div>
+        </footer>
+      </div>
+    </script>
+
+    <script>
+      Vue.component("lcc-header", {
+        template: "#lcc-header"
+      });
+
+      Vue.component("currency-item", {
+        template: "#currency-item",
+        props: {
+          list: Array,
+          currency: Object,
+          value: Number
+        },
+        data() {
+          return {
+            selectedCurrency: null,
+            currentValue: 0
+          };
+        },
+        computed: {
+          selectedCurrencyFlagClass() {
+            return "currency-flag-" + this.selectedCurrency.code.toLowerCase();
+          }
+        },
+        created() {
+          this.selectedCurrency = this.currency;
+          this.currentValue = this.value;
+        },
+        methods: {
+          currentValueChanged() {
+            this.$emit("valuechanged", this.currentValue);
+          },
+          currentSelectedCurrencyChanged() {
+            this.$emit("currencychanged", this.selectedCurrency);
+          }
+        },
+        watch: {
+          value(newValue) {
+            this.currentValue = newValue;
+          }
+        },
+        filters: {
+          // decimalDigits(value) {
+          //   return value.toFixed(2);
+          // }
+        }
+      });
+
+      var app = new Vue({
+        el: "#app",
+        data: {
+          myCurrencyList: currencies,
+          leftCurrency: null,
+          leftValue: 100,
+          leftRate: 0,
+          rightCurrency: null,
+          rightValue: 100,
+          rightRate: 0,
+          isAboutModalActive: false
+        },
+        methods: {
+          leftCurrencyChanged(value) {
+            this.leftCurrency = value;
+
+            console.log(this.leftCurrency.code);
+
+            this.fetchLeftRate().then(res => {
+              this.leftRate = res;
+              console.log(this.leftRate);
+              this.leftValueChanged(this.leftValue);
+            });
+          },
+          leftValueChanged(value) {
+            this.rightValue = (value / this.leftRate) * this.rightRate;
+            this.rightValue = +this.rightValue.toFixed(
+              this.rightCurrency.decimal_digits
+            );
+          },
+          rightCurrencyChanged(value) {
+            this.rightCurrency = value;
+
+            console.log(this.rightCurrency.code);
+
+            this.fetchRightRate().then(res => {
+              this.rightRate = res;
+              console.log(this.rightRate);
+              this.rightValueChanged(this.rightValue);
+            });
+          },
+          rightValueChanged(value) {
+            this.leftValue = (value / this.rightRate) * this.leftRate;
+            this.leftValue = +this.leftValue.toFixed(
+              this.leftCurrency.decimal_digits
+            );
+          },
+          fetchLeftRate() {
+            return this.fetchRate("USD", this.leftCurrency.code);
+          },
+          fetchRightRate() {
+            return this.fetchRate("USD", this.rightCurrency.code);
+          },
+          init() {
+            this.leftCurrency = this.myCurrencyList[0];
+            this.rightCurrency = this.myCurrencyList[1];
+            this.fetchRightRate().then(res => {
+              this.rightRate = res;
+              console.log(this.rightRate);
+            });
+            this.fetchLeftRate().then(res => {
+              this.leftRate = res;
+              console.log(this.leftRate);
+              this.leftValueChanged(this.leftValue);
+            });
+          },
+          async fetchRate(sourceCurrencyCode, targetCurrencyCode) {
+            var myParams = new URLSearchParams();
+            myParams.append("access_key", "cecbb5efba981751664dfd6d65b49285");
+            myParams.append("source", sourceCurrencyCode);
+            myParams.append("currencies", targetCurrencyCode);
+            myParams.append("format", "1");
+            return await axios
+              .get("http://apilayer.net/api/live", {
+                params: myParams
+              })
+              .then(res => {
+                console.table(res.data);
+                return res.data.quotes[sourceCurrencyCode + targetCurrencyCode];
+              })
+              .catch(error => {
+                console.error(error);
+              })
+              .finally(() => {});
+            // return response;
+          }
+        },
+        created() {
+          this.init();
+        }
+      });
+    </script>
+  </body>
+</html>
