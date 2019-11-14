@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-    <!-- <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css"
-    /> -->
-    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.css" />
+    <link rel="stylesheet" href="buefy.css" />
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -17,26 +13,6 @@
     <link href="currency-flags.css" rel="stylesheet" />
 
     <title>Live Currency Converter</title>
-    <style>
-      /* .container {
-            width: 25rem;
-        }
-
-        .reg-item {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            border: 1px solid black;
-            border-radius: 0.5rem;
-        }
-*/
-      .has-background-very-light-danger {
-        background-color: hsl(348, 100%, 96%) !important;
-      }
-
-      .has-background-very-light-success {
-        background-color: hsl(141, 71%, 96%) !important;
-      }
-    </style>
   </head>
 
   <body>
@@ -121,14 +97,13 @@
       </section>
     </div>
 
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
-    <script src="https://unpkg.com/vue"></script>
+    <script src="axios.min.js"></script>
+    <script src="vue.min.js"></script>
     <!-- Full bundle -->
-    <script src="https://unpkg.com/buefy/dist/buefy.js"></script>
+    <script src="buefy.min.js"></script>
     <!-- Individual components -->
-    <script src="https://unpkg.com/buefy/dist/components/table"></script>
-    <script src="https://unpkg.com/buefy/dist/components/input"></script>
+    <script src="table.min.js"></script>
+    <script src="input.min.js"></script>
 
     <script type="text/javascript" src="currencies.js"></script>
 
@@ -165,7 +140,6 @@
                   <b-tag >{{ selectedCurrency.code }}</b-tag>
                   <b-tag type="is-dark">{{ selectedCurrency.symbol_native }}</b-tag>
                 </b-taglist>
-                <!-- {{ selectedCurrency.code }} ({{ selectedCurrency.symbol_native }}) -->
             </p>
             </div>
             <div class="media-right">
@@ -192,9 +166,6 @@
                 </template>
                 <b-numberinput v-model="currentValue" expanded @input="currentValueChanged" type="is-light" step="0.01" controls-position="compact" size="is-medium">
                 </b-numberinput>
-                <!-- <b-input placeholder="Medium"
-                    size="is-medium">
-                </b-input> -->
             </b-field>
           </div>
         </footer>
@@ -242,9 +213,6 @@
           }
         },
         filters: {
-          // decimalDigits(value) {
-          //   return value.toFixed(2);
-          // }
         }
       });
 
@@ -332,7 +300,6 @@
                 console.error(error);
               })
               .finally(() => {});
-            // return response;
           }
         },
         created() {
